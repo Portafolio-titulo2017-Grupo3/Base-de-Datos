@@ -1,0 +1,186 @@
+
+-- Generado por Oracle SQL Developer Data Modeler 4.1.0.873
+--   en:        2017-09-05 21:51:43 BRT
+--   sitio:      Oracle Database 11g
+--   tipo:      Oracle Database 11g
+
+
+
+
+CREATE TABLE Departamento
+  (
+    idDepto     NUMBER (8) NOT NULL ,
+    nombreDepto VARCHAR2 (20) NOT NULL ,
+    responsable VARCHAR2 (20) NOT NULL
+  ) ;
+ALTER TABLE Departamento ADD CONSTRAINT Departamento_PK PRIMARY KEY ( idDepto ) ;
+
+CREATE TABLE Estado
+  (
+    idEstado     NUMBER (8) NOT NULL ,
+    nombreEstado VARCHAR2 (20) NOT NULL
+  ) ;
+ALTER TABLE Estado ADD CONSTRAINT Estado_PK PRIMARY KEY ( idEstado ) ;
+
+CREATE TABLE Fecha
+  (
+    idFecha          NUMBER (8) NOT NULL ,
+    fechaInicioPerm  DATE NOT NULL ,
+    fechaTermPerm    DATE NOT NULL ,
+    fechaEmisionPerm DATE NOT NULL
+  ) ;
+ALTER TABLE Fecha ADD CONSTRAINT Fecha_PK PRIMARY KEY ( idFecha ) ;
+
+CREATE TABLE Funcionario
+  (
+    rutFunci                VARCHAR2 (10) NOT NULL ,
+    primerNombre            VARCHAR2 (10) NOT NULL ,
+    SegundoNombre           VARCHAR2 (10) NOT NULL ,
+    primerApellido          VARCHAR2 (10) NOT NULL ,
+    SegundoApellido         VARCHAR2 (10) NOT NULL ,
+    telefono                NUMBER (10) NOT NULL ,
+    sexo                    VARCHAR2 (10) NOT NULL ,
+    correo                  VARCHAR2 (15) ,
+    fechaIngresoFun         DATE NOT NULL ,
+    horasExtras_idHoraExtra NUMBER (8) NOT NULL ,
+    horasExtras_idMes       NUMBER (2) NOT NULL
+  ) ;
+ALTER TABLE Funcionario ADD CONSTRAINT Funcionario_PK PRIMARY KEY ( rutFunci, horasExtras_idHoraExtra, horasExtras_idMes ) ;
+
+CREATE TABLE Mes
+  (
+    idMes     NUMBER (2) NOT NULL ,
+    nombreMes VARCHAR2 (15) NOT NULL
+  ) ;
+ALTER TABLE Mes ADD CONSTRAINT Mes_PK PRIMARY KEY ( idMes ) ;
+
+CREATE TABLE Motivo
+  (
+    idMotivo          NUMBER (8) NOT NULL ,
+    nombreMotivo      VARCHAR2 (20) NOT NULL ,
+    descripcionMotivo VARCHAR2 (300) NOT NULL
+  ) ;
+ALTER TABLE Motivo ADD CONSTRAINT Motivo_PK PRIMARY KEY ( idMotivo ) ;
+
+CREATE TABLE Perfil
+  (
+    idPerfil          NUMBER NOT NULL ,
+    nombrePerfil      VARCHAR2 (20) NOT NULL ,
+    descripcionPerfil VARCHAR2 (300) NOT NULL
+  ) ;
+ALTER TABLE Perfil ADD CONSTRAINT Perfil_PK PRIMARY KEY ( idPerfil ) ;
+
+CREATE TABLE Permiso
+  (
+    idPermiso NUMBER (8) NOT NULL ,
+    pdf BLOB ,
+    resolucion VARCHAR2 (50) ,
+    xml XMLTYPE ,
+    Estado_idEstado               NUMBER (8) NOT NULL ,
+    Fecha_idFecha                 NUMBER (8) NOT NULL ,
+    Motivo_idMotivo               NUMBER (8) NOT NULL ,
+    Tipo_idTipo                   NUMBER (8) NOT NULL ,
+    Usuario_nombreUsu             VARCHAR2 (20) NOT NULL ,
+    Usuario_idPerfil              NUMBER NOT NULL ,
+    Usuario_Funcionario_rutFunci  VARCHAR2 (10) NOT NULL ,
+    Usu_Fun_horaExtra_idHoraExtra NUMBER (8) NOT NULL ,
+    Usu_Fun_horaExtra_idMes       NUMBER (2) NOT NULL ,
+    Usuario_Departamento_idDepto  NUMBER (8) NOT NULL
+  )
+  XMLTYPE COLUMN xml STORE AS BINARY XML
+  (
+    STORAGE ( PCTINCREASE 0 MINEXTENTS 1 MAXEXTENTS UNLIMITED FREELISTS 1 BUFFER_POOL DEFAULT ) RETENTION ENABLE STORAGE IN ROW NOCACHE
+  ) ;
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_PK PRIMARY KEY ( idPermiso, Estado_idEstado, Fecha_idFecha, Motivo_idMotivo, Tipo_idTipo, Usuario_nombreUsu, Usuario_idPerfil, Usuario_Funcionario_rutFunci, Usu_Fun_horaExtra_idHoraExtra, Usu_Fun_horaExtra_idMes, Usuario_Departamento_idDepto ) ;
+
+CREATE TABLE Tipo
+  (
+    idTipo          NUMBER (8) NOT NULL ,
+    nombreTipo      VARCHAR2 (20) NOT NULL ,
+    descripcionTipo VARCHAR2 (300) NOT NULL
+  ) ;
+ALTER TABLE Tipo ADD CONSTRAINT Tipo_PK PRIMARY KEY ( idTipo ) ;
+
+CREATE TABLE Usuario
+  (
+    nombreUsu                 VARCHAR2 (20) NOT NULL ,
+    claveUsu                  NUMBER (8) NOT NULL ,
+    rutUsuario                VARCHAR2 (13) NOT NULL ,
+    Perfil_idPerfil           NUMBER NOT NULL ,
+    Funcionario_rutFunci      VARCHAR2 (10) NOT NULL ,
+    Fun_horaExtra_idHoraExtra NUMBER (8) NOT NULL ,
+    Func_horasExtras_idMes    NUMBER (2) NOT NULL ,
+    Departamento_idDepto      NUMBER (8) NOT NULL
+  ) ;
+ALTER TABLE Usuario ADD CONSTRAINT Usuario_PK PRIMARY KEY ( nombreUsu, Perfil_idPerfil, Funcionario_rutFunci, Fun_horaExtra_idHoraExtra, Func_horasExtras_idMes, Departamento_idDepto ) ;
+
+CREATE TABLE horasExtras
+  (
+    idHoraExtra NUMBER (8) NOT NULL ,
+    cantHoras   NUMBER (3) NOT NULL ,
+    Mes_idMes   NUMBER (2) NOT NULL
+  ) ;
+ALTER TABLE horasExtras ADD CONSTRAINT horasExtras_PK PRIMARY KEY ( idHoraExtra, Mes_idMes ) ;
+
+ALTER TABLE Funcionario ADD CONSTRAINT Funcionario_horasExtras_FK FOREIGN KEY ( horasExtras_idHoraExtra, horasExtras_idMes ) REFERENCES horasExtras ( idHoraExtra, Mes_idMes ) ;
+
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_Estado_FK FOREIGN KEY ( Estado_idEstado ) REFERENCES Estado ( idEstado ) ;
+
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_Fecha_FK FOREIGN KEY ( Fecha_idFecha ) REFERENCES Fecha ( idFecha ) ;
+
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_Motivo_FK FOREIGN KEY ( Motivo_idMotivo ) REFERENCES Motivo ( idMotivo ) ;
+
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_Tipo_FK FOREIGN KEY ( Tipo_idTipo ) REFERENCES Tipo ( idTipo ) ;
+
+ALTER TABLE Permiso ADD CONSTRAINT Permiso_Usuario_FK FOREIGN KEY ( Usuario_nombreUsu, Usuario_idPerfil, Usuario_Funcionario_rutFunci, Usu_Fun_horaExtra_idHoraExtra, Usu_Fun_horaExtra_idMes, Usuario_Departamento_idDepto ) REFERENCES Usuario ( nombreUsu, Perfil_idPerfil, Funcionario_rutFunci, Fun_horaExtra_idHoraExtra, Func_horasExtras_idMes, Departamento_idDepto ) ;
+
+ALTER TABLE Usuario ADD CONSTRAINT Usuario_Departamento_FK FOREIGN KEY ( Departamento_idDepto ) REFERENCES Departamento ( idDepto ) ;
+
+ALTER TABLE Usuario ADD CONSTRAINT Usuario_Funcionario_FK FOREIGN KEY ( Funcionario_rutFunci, Fun_horaExtra_idHoraExtra, Func_horasExtras_idMes ) REFERENCES Funcionario ( rutFunci, horasExtras_idHoraExtra, horasExtras_idMes ) ;
+
+ALTER TABLE Usuario ADD CONSTRAINT Usuario_Perfil_FK FOREIGN KEY ( Perfil_idPerfil ) REFERENCES Perfil ( idPerfil ) ;
+
+ALTER TABLE horasExtras ADD CONSTRAINT horasExtras_Mes_FK FOREIGN KEY ( Mes_idMes ) REFERENCES Mes ( idMes ) ;
+
+
+-- Informe de Resumen de Oracle SQL Developer Data Modeler: 
+-- 
+-- CREATE TABLE                            11
+-- CREATE INDEX                             0
+-- ALTER TABLE                             21
+-- CREATE VIEW                              0
+-- ALTER VIEW                               0
+-- CREATE PACKAGE                           0
+-- CREATE PACKAGE BODY                      0
+-- CREATE PROCEDURE                         0
+-- CREATE FUNCTION                          0
+-- CREATE TRIGGER                           0
+-- ALTER TRIGGER                            0
+-- CREATE COLLECTION TYPE                   0
+-- CREATE STRUCTURED TYPE                   0
+-- CREATE STRUCTURED TYPE BODY              0
+-- CREATE CLUSTER                           0
+-- CREATE CONTEXT                           0
+-- CREATE DATABASE                          0
+-- CREATE DIMENSION                         0
+-- CREATE DIRECTORY                         0
+-- CREATE DISK GROUP                        0
+-- CREATE ROLE                              0
+-- CREATE ROLLBACK SEGMENT                  0
+-- CREATE SEQUENCE                          0
+-- CREATE MATERIALIZED VIEW                 0
+-- CREATE SYNONYM                           0
+-- CREATE TABLESPACE                        0
+-- CREATE USER                              0
+-- 
+-- DROP TABLESPACE                          0
+-- DROP DATABASE                            0
+-- 
+-- REDACTION POLICY                         0
+-- 
+-- ORDS DROP SCHEMA                         0
+-- ORDS ENABLE SCHEMA                       0
+-- ORDS ENABLE OBJECT                       0
+-- 
+-- ERRORS                                   0
+-- WARNINGS                                 0
