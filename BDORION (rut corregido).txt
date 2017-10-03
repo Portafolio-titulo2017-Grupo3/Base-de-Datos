@@ -105,7 +105,7 @@ CREATE TABLE Usuario
   (
     nombreUsu                 VARCHAR2 (20) NOT NULL ,
     claveUsu                  NUMBER (8) NOT NULL ,
-    rutUsuario                VARCHAR2 (13) NOT NULL ,
+    rutUsuario                VARCHAR2 (10) NOT NULL ,
     Perfil_idPerfil           NUMBER NOT NULL ,
     Funcionario_rutFunci      VARCHAR2 (10) NOT NULL ,
     Fun_horaExtra_idHoraExtra NUMBER (8) NOT NULL ,
